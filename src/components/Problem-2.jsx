@@ -1,12 +1,14 @@
 import React, {
+  useId,
   useRef,
   useMemo,
   useState,
   useEffect,
   useLayoutEffect,
 } from 'react';
-import css from './Problem-2.module.scss';
+import './Problem-2.css';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import useEffectOnce from '../hooks/useEffectOnce';
 
 const Problem2 = () => {
   const navigate = useNavigate();
@@ -40,19 +42,26 @@ const Problem2 = () => {
 };
 
 export const Modal = () => {
+  const id = useId().replaceAll(':', '___');
   const [isEven, setIsEven] = useState(false);
   const [api, { setQuery, nextPage }] = useContactData();
   const [activeContact, setActiveContact] = useState(null);
   const props = useSearch(setQuery);
 
-  function handleScroll(e) {
-    const target = e.target;
+  function handleScroll() {
+    const target = document.getElementById(id);
+    if (!target || api.isLoading) return;
 
     const scrollBottom = target.scrollTop + target.clientHeight;
     if (scrollBottom === target.scrollHeight) {
       nextPage();
     }
   }
+
+  useEffect(() => {
+    // This may cause an issue in dev mode :)
+    handleScroll();
+  }, [api.data]);
 
   const results = useMemo(() => {
     const contacts = api.data ?? [];
@@ -71,10 +80,10 @@ export const Modal = () => {
   }, [api.type, api.data, isEven]);
 
   return (
-    <Dialog className={css.dialog} onScroll={handleScroll}>
-      <div className={css.wrapper}>
-        <div className={css.header}>
-          <div className={css.onlyEven}>
+    <Dialog id={id} className='dialog' onScroll={handleScroll}>
+      <div style={{ padding: '15px 5%' }}>
+        <div className='d-flex justify-content-between align-items-center pb-5'>
+          <div>
             <label htmlFor='only-even'>Only even</label>
             <input
               id='only-even'
@@ -85,19 +94,19 @@ export const Modal = () => {
           </div>
 
           <div>
-            <Link className={css.buttonA} to='/problem-2/all'>
+            <Link className='buttonA' to='/problem-2/all'>
               All Contacts
             </Link>
-            <Link className={css.buttonB} to='/problem-2/us'>
+            <Link className='buttonB' to='/problem-2/us'>
               US Contacts
             </Link>
-            <Link className={css.buttonC} to='..'>
+            <Link className='buttonC' to='..'>
               Close
             </Link>
           </div>
         </div>
 
-        <div className={css.search}>
+        <div className='search'>
           <input
             className='rounded p-2 border border-primary form-control'
             type='text'
@@ -106,15 +115,15 @@ export const Modal = () => {
           />
         </div>
 
-        <div className={css.content}>
+        <div className='content'>
           {api.isLoading ? (
             'Loading contacts...'
           ) : (
-            <table className={css.table}>
+            <table className='table'>
               <tbody>
                 <tr>
                   <th>Id</th>
-                  <th>Phone</th>
+                  <th style={{ width: '250px' }}>Phone</th>
                   <th>Country</th>
                 </tr>
 
@@ -123,11 +132,11 @@ export const Modal = () => {
                   return (
                     <tr
                       key={id}
-                      className={css.pointer}
+                      className='pointer'
                       onClick={() => setActiveContact(contact)}
                     >
                       <td>{id}</td>
-                      <td>{phone}</td>
+                      <td style={{ width: '250px' }}>{phone}</td>
                       <td>{country.name}</td>
                     </tr>
                   );
@@ -150,10 +159,10 @@ export const Modal = () => {
 
 const NestedContact = ({ contact, close }) => {
   return (
-    <Dialog className={css.nestedDialog}>
-      <div className={css.nestedHeader}>
+    <Dialog className='nestedDialog'>
+      <div className='nestedHeader'>
         <h4>{contact.phone}</h4>
-        <button className={css.buttonC} onClick={close}>
+        <button className='buttonC' onClick={close}>
           Close
         </button>
       </div>
@@ -199,12 +208,10 @@ function useContactData() {
       : setData((prev) => [...prev, ...data.results]);
   }
 
-  useEffect(() => {
-    loadData(initialUrl);
-  }, []);
+  useEffectOnce(() => loadData(initialUrl));
 
   return [
-    { isLoading, data, loadData, type },
+    { isLoading, data: removeDuplicate(data), loadData, type },
     {
       nextPage() {
         nextPageUrl && loadData(nextPageUrl, { useLoading: false });
@@ -237,6 +244,11 @@ function useSearch(onChange) {
     onChange: (e) => _setSearch(e.target.value),
     onKeyDown: (e) => e.key === 'Enter' && setSearch(_search),
   };
+}
+
+function removeDuplicate(data) {
+  const set = new Set(data.map(JSON.stringify));
+  return [...set].map(JSON.parse);
 }
 
 const Dialog = (props) => {

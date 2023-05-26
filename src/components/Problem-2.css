@@ -1,0 +1,110 @@
+a {
+  color: inherit;
+}
+
+.dialog {
+  width: 100%;
+  height: 100%;
+  border-color: transparent;
+  padding: 0;
+}
+
+.dialog::backdrop {
+  background-color: grey;
+  backdrop-filter: blur(2px);
+}
+
+.container {
+  padding: 15px 5%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.search {
+  margin-bottom: 15px;
+}
+
+.search input {
+  width: 100%;
+}
+
+.buttonA,
+.buttonB,
+.buttonC {
+  margin-right: 1rem;
+  padding: 5px 15px;
+  background-color: lightgray;
+  border-radius: 0.5rem;
+  text-decoration: none;
+}
+
+.buttonA:visited,
+.buttonB:visited {
+  color: revert;
+}
+
+.buttonA {
+  color: #46139f !important;
+}
+
+.buttonB {
+  color: #ff7f50 !important;
+}
+
+.buttonC {
+  border: 1px solid #46139f !important;
+  background-color: #fff !important;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.table tr:nth-child(1) {
+  width: 150px;
+}
+
+.table tr:nth-child(2) {
+  width: 100px;
+}
+
+.table tr:nth-child(3) {
+  width: 120px;
+}
+
+.table tr:nth-child(4) {
+  width: 250px;
+}
+
+.nestedDialog {
+  border-radius: 10px;
+  box-shadow: 0 0 10px 5px lightgray;
+  height: 75%;
+  width: 75%;
+  border-color: transparent;
+}
+
+.nestedDialog::backdrop {
+  backdrop-filter: blur(2px);
+}
+
+.nestedDialog p {
+  all: unset;
+  display: block;
+}
+
+.nestedHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.nestedHeader .buttonC {
+  margin: 0;
+}
